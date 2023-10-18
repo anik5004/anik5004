@@ -1,0 +1,63 @@
+#include <iostream>
+#include <queue>
+#include <map>
+using namespace std;
+
+struct HuffmanNode {
+    char data;
+    unsigned frequency;
+    HuffmanNode *left, *right;
+
+    HuffmanNode(char data, unsigned frequency) : data(data), frequency(frequency), left(NULL), right(NULL) {}
+};
+
+struct Compare {
+    bool operator()(HuffmanNode* l, HuffmanNode* r) {
+        return (l->frequency > r->frequency);
+    }
+};
+void printHuffmanCodes(HuffmanNode* root, string code) {
+    if (!root)
+        return;
+
+    if (root->data != '$') {
+        cout << root->data << ": " << code << endl;
+    }
+
+    printHuffmanCodes(root->left, code + "0");
+    printHuffmanCodes(root->right, code + "1");
+}
+
+void buildHuffmanTree(string text) {
+    map<char, int> freq;
+    for (char c : text) {
+        freq[c]++;
+    }
+
+    priority_queue<HuffmanNode*, vector<HuffmanNode*>, Compare> minHeap;
+    for (auto pair : freq) {
+        minHeap.push(new HuffmanNode(pair.first, pair.second));
+    }
+
+    while (minHeap.size() != 1) {
+        HuffmanNode* left = minHeap.top();
+        minHeap.pop();
+        HuffmanNode* right = minHeap.top();
+        minHeap.pop();
+
+        HuffmanNode* newNode = new HuffmanNode('$', left->frequency + right->frequency);
+        newNode->left = left;
+        newNode->right = right;
+
+        minHeap.push(newNode);
+    }
+
+    HuffmanNode* root = minHeap.top();
+    printHuffmanCodes(root, "");
+}
+
+int main() {
+    string text = "this is an example for huffman encoding";
+    buildHuffmanTree(text);
+    return 0;
+}
